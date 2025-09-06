@@ -1,66 +1,36 @@
-﻿# 🛒 Carrinho de Compras em PHP
+# Sistema de Carrinho em PHP
 
-**Disciplina:** Design Patterns & Clean Code  
-**Projeto:** Simulador de Carrinho de Compras  
-**Integrantes:**  
-- Alexsandher Angel (RA:1986097)  
-- Luiz Felipe Rosa (RA:1996870)  
+## Integrantes da Dupla
+- Nome: Alexsandher Angel - RA: 1986097  
+- Nome: Luiz Felipe Rosa dos Santos - RA: 1996870  
 
----
+## Sobre o Projeto
+Trata-se de um sistema simples em PHP que simula o funcionamento de um carrinho de compras. Foi desenvolvido como exercício prático para aplicar conceitos de organização de código e boas práticas, sem uso de banco de dados ou frameworks. Os dados são todos mantidos em arrays.
 
-## 🚀 Objetivo
-Desenvolver um sistema simples em **PHP puro**, aplicando **PSR-12**, **KISS** e **DRY**, simulando o carrinho de compras de um e-commerce.
+## Como Executar
+1. Baixe e instale o XAMPP e inicie o Apache.  
+2. Coloque a pasta do projeto em `htdocs/carrinho`.  
+3. Acesse pelo navegador: `http://localhost/carrinho/scr/index.php`.  
+4. Também pode rodar pelo terminal: vá até `scr/` e execute `php index.php`.  
 
----
+## Funcionalidades
+- Adicionar produtos, verificando estoque e atualizando o carrinho.  
+- Remover produtos, devolvendo estoque.  
+- Mostrar lista de itens com subtotal e valor total.  
+- Calcular valor final com opção de aplicar cupom de desconto (`DESCONTO10` dá 10%).  
 
-## ⚙️ Como rodar
-1. Instale o XAMPP.
-2. Copie a pasta do projeto para C:\xampp\htdocs\carrinho-compras (ou crie um alias no Apache).
-3. Inicie o **Apache** no painel do XAMPP.
-4. Acesse no navegador:
-   http://localhost/carrinho-compras
+## Regras Básicas
+- O subtotal é calculado automaticamente (preço × quantidade).  
+- Estoque é ajustado sempre que adiciona ou remove item.  
+- Cupom só afeta o total final.  
 
----
+## Limitações
+- Não há persistência de dados (tudo fica em memória).  
+- Não há interface gráfica, apenas execução no navegador ou CLI.  
+- Projeto em PHP puro, sem frameworks ou banco de dados.  
 
-## 📦 Funcionalidades
-- **Adicionar item ao carrinho**
-  - Valida produto e estoque, atualiza carrinho e reduz estoque.
-- **Remover item do carrinho**
-  - Valida item, remove e devolve estoque.
-- **Listar itens**
-  - Mostra quantidade, subtotal e total.
-- **Calcular total**
-  - Soma dos subtotais.
-- **Cupom de desconto**
-  - DESCONTO10 → 10% no total.
-
----
-
-## 🧪 Casos de Uso
-- **Adicionar válido**: id=1, qtd=2 → adiciona e atualiza estoque.
-- **Além do estoque**: id=3, qtd=10 → erro "Estoque insuficiente".
-- **Remover**: id=2 → remove e restaura estoque.
-- **Aplicar cupom**: DESCONTO10 → total -10%.
-
----
-
-## 📂 Estrutura
-carrinho-compras/
- ├── src/         # Código PHP
- ├── docs/        # PRD & docs
- ├── README.md
- └── .gitignore
-
----
-
-## 🔒 Limitações
-- Sem banco de dados (apenas arrays).
-- Sem login/usuário.
-- Sem formulários (valores fixos no código).
-- PHP puro (sem frameworks).
-
-## 📝 Critérios de Avaliação
-- PSR-12, DRY, KISS.
-- Funcionalidades mínimas ok.
-- Doc clara (README) e organização.
-- Criatividade na apresentação.
+## Casos de Teste
+- **Adicionar item válido** → Produto é inserido e estoque reduzido.  
+- **Adicionar acima do estoque** → Mensagem de erro, carrinho não muda.  
+- **Remover item** → Produto some do carrinho e estoque é restaurado.  
+- **Aplicar cupom** → Total final recebe desconto de 10%.  
