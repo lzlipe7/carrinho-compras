@@ -2,129 +2,119 @@
 
 declare(strict_types=1);
 
-class CarrinhoDeCompras
+class Carrinho
 {
-    private array $produtosDisponiveis;
-    private array $itensSelecionados;
+    private array $produtos;
+    private array $itens;
 
     public function __construct()
     {
-        $this->produtosDisponiveis = [
-            ['id' => 1, 'nome' => 'Camiseta',     'preco' => 59.90,  'estoque' => 10],
-            ['id' => 2, 'nome' => 'Calça Jeans',  'preco' => 129.90, 'estoque' => 5],
-            ['id' => 3, 'nome' => 'Tênis',        'preco' => 199.90, 'estoque' => 3],
+        $this->produtos = [
+            ['id' => 1, 'nome' => 'Camiseta', 'preco' => 59.90, 'estoque' => 10],
+            ['id' => 2, 'nome' => 'Calça Jeans', 'preco' => 129.90, 'estoque' => 5],
+            ['id' => 3, 'nome' => 'Tênis', 'preco' => 199.90, 'estoque' => 3],
         ];
 
-        $this->itensSelecionados = [];
+        $this->itens = [];
     }
 
-    public function adicionarProduto(int $idProduto, int $quantidade): string
+    public function adicionar(int $id, int $qtd): string
     {
-        $produto = $this->buscarProduto($idProduto);
-        if ($produto === null) {
-            return "O produto com ID {$idProduto} não foi localizado.";
+        $produto = $this->buscarProduto($id);
+        if (!$produto) {
+            return "Produto $id não existe.";
         }
 
-        if ($quantidade > $produto['estoque']) {
-            return "Não há quantidade suficiente em estoque para '{$produto['nome']}'. Estoque atual: {$produto['estoque']}.";
+        if ($qtd > $produto['estoque']) {
+            return "Sem estoque de {$produto['nome']} (disponível: {$produto['estoque']}).";
         }
 
-        $itemNoCarrinho = $this->buscarItem($idProduto);
-        if ($itemNoCarrinho !== null) {
-            $itemNoCarrinho['quantidade'] += $quantidade;
-            $itemNoCarrinho['subtotal'] = $itemNoCarrinho['quantidade'] * $produto['preco'];
-        } else {
-            $this->itensSelecionados[] = [
-                'id_produto' => $idProduto,
-                'quantidade' => $quantidade,
-                'subtotal'   => $quantidade * $produto['preco'],
-            ];
+        foreach ($this->itens as &$item) {
+            if ($item['id'] === $id) {
+                $item['qtd'] += $qtd;
+                $item['subtotal'] = $item['qtd'] * $produto['preco'];
+                $this->reduzirEstoque($id, $qtd);
+                return "{$produto['nome']} adicionado (Qtd: $qtd).";
+            }
         }
 
-        $produto['estoque'] -= $quantidade;
-        $this->atualizarProduto($produto);
+        $this->itens[] = [
+            'id' => $id,
+            'qtd' => $qtd,
+            'subtotal' => $qtd * $produto['preco']
+        ];
+        $this->reduzirEstoque($id, $qtd);
 
-        return "Produto '{$produto['nome']}' incluído com sucesso (quantidade: {$quantidade}).";
+        return "{$produto['nome']} adicionado (Qtd: $qtd).";
     }
 
-    public function removerProduto(int $idProduto): string
+    public function remover(int $id): string
     {
-        $item = $this->buscarItem($idProduto);
-        if ($item === null) {
-            return "O item com ID {$idProduto} não está presente no carrinho.";
+        foreach ($this->itens as $key => $item) {
+            if ($item['id'] === $id) {
+                $this->devolverEstoque($id, $item['qtd']);
+                unset($this->itens[$key]);
+                return "Item $id removido.";
+            }
         }
-
-        $produto = $this->buscarProduto($idProduto);
-        $produto['estoque'] += $item['quantidade'];
-        $this->atualizarProduto($produto);
-
-        $this->itensSelecionados = array_filter(
-            $this->itensSelecionados,
-            fn($i) => $i['id_produto'] !== $idProduto
-        );
-
-        return "O item de ID {$idProduto} foi removido do carrinho com êxito.";
+        return "Item $id não está no carrinho.";
     }
 
-    public function exibirCarrinho(): string
+    public function mostrar(): string
     {
-        if (empty($this->itensSelecionados)) {
-            return "O carrinho encontra-se vazio.";
+        if (empty($this->itens)) {
+            return "Carrinho vazio.";
         }
 
-        $saida = "Itens atualmente no carrinho:\n";
+        $texto = "Itens no carrinho:\n";
         $total = 0;
-
-        foreach ($this->itensSelecionados as $item) {
-            $produto = $this->buscarProduto($item['id_produto']);
-            $saida .= "- {$produto['nome']} (ID: {$item['id_produto']}) | Quantidade: {$item['quantidade']} | Subtotal: R$ {$item['subtotal']}\n";
+        foreach ($this->itens as $item) {
+            $produto = $this->buscarProduto($item['id']);
+            $texto .= "- {$produto['nome']} (ID: {$item['id']}) | Qtd: {$item['qtd']} | Subtotal: R$ {$item['subtotal']}\n";
             $total += $item['subtotal'];
         }
-
-        $saida .= "Valor total: R$ {$total}\n";
-        return $saida;
+        $texto .= "Total: R$ $total\n";
+        return $texto;
     }
 
-    public function calcularValorTotal(string $cupom = ''): float
+    public function total(string $cupom = ''): float
     {
-        $total = 0;
-        foreach ($this->itensSelecionados as $item) {
-            $total += $item['subtotal'];
+        $valor = 0;
+        foreach ($this->itens as $item) {
+            $valor += $item['subtotal'];
         }
 
         if ($cupom === 'DESCONTO10') {
-            $total *= 0.90; // Aplicação de 10% de desconto
+            $valor *= 0.9;
         }
 
-        return $total;
+        return $valor;
     }
 
     private function buscarProduto(int $id): ?array
     {
-        foreach ($this->produtosDisponiveis as $produto) {
-            if ($produto['id'] === $id) {
-                return $produto;
+        foreach ($this->produtos as $p) {
+            if ($p['id'] === $id) {
+                return $p;
             }
         }
         return null;
     }
 
-    private function buscarItem(int $id): ?array
+    private function reduzirEstoque(int $id, int $qtd): void
     {
-        foreach ($this->itensSelecionados as &$item) {
-            if ($item['id_produto'] === $id) {
-                return $item;
+        foreach ($this->produtos as &$p) {
+            if ($p['id'] === $id) {
+                $p['estoque'] -= $qtd;
             }
         }
-        return null;
     }
 
-    private function atualizarProduto(array $produtoAtualizado): void
+    private function devolverEstoque(int $id, int $qtd): void
     {
-        foreach ($this->produtosDisponiveis as &$produto) {
-            if ($produto['id'] === $produtoAtualizado['id']) {
-                $produto = $produtoAtualizado;
-                return;
+        foreach ($this->produtos as &$p) {
+            if ($p['id'] === $id) {
+                $p['estoque'] += $qtd;
             }
         }
     }
