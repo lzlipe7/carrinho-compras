@@ -3,8 +3,8 @@
 **Disciplina:** Design Patterns & Clean Code  
 **Projeto:** Simulador de Carrinho de Compras  
 **Integrantes:**  
-- Lz (RA: ________)  
-- Parceiro (RA: ________)  
+- Alexsandher Angel (RA:1986097)  
+- Luiz Felipe Rosa (RA:1996870)  
 
 ---
 
