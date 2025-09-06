@@ -1,0 +1,18 @@
+﻿# SO / Windows
+Thumbs.db
+Desktop.ini
+
+# IDEs
+.vscode/
+.idea/
+
+# Logs e temporários
+*.log
+*.tmp
+
+# PHP/Composer (se usar futuramente)
+vendor/
+composer.lock
+
+# Ambientes
+.env
